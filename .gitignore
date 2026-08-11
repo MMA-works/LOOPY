@@ -1,0 +1,23 @@
+# Flutter
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/build/
+mobile/android/.gradle/
+mobile/ios/Pods/
+
+# IDE and local files
+.idea/
+.vscode/
+*.iml
+.env
+.env.example
+
+# Future development voice storage
+storage/voice/*
+!storage/voice/.gitkeep
+backend/data/voice/
+backend/data/images/
+
+# Java build output
+backend/target/

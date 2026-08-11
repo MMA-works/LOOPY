@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:looply;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+app:
+  security:
+    jwt-secret: test-secret-with-at-least-thirty-two-characters-123456
+    access-token-ttl: PT15M
