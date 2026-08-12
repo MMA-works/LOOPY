@@ -473,7 +473,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
             backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: AppTheme.ink,
             surfaceTintColor: Colors.transparent,
             titleSpacing: 0,
             title: Row(children: [
@@ -483,18 +483,23 @@ class _ChatScreenState extends State<ChatScreen> {
                 Text(widget.user.name,
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w800)),
-                Text(_connected ? 'Real-time connected' : 'Reconnecting…',
+                Text(_connected ? 'Online' : 'Reconnecting…',
                     style: TextStyle(
                         fontSize: 11,
                         color: _connected
-                            ? const Color(0xFFFFD45C)
-                            : const Color(0xFFFFB58F)))
+                            ? AppTheme.amber
+                            : AppTheme.muted))
               ])
-            ])),
+            ]),
+            actions: [
+              IconButton(tooltip: 'Video call', onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Video calling is coming soon.'))), icon: const Icon(Icons.videocam_outlined)),
+              IconButton(tooltip: 'Voice call', onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Voice calling is coming soon.'))), icon: const Icon(Icons.call_outlined)),
+              IconButton(tooltip: 'More', onPressed: () => showModalBottomSheet<void>(context: context, builder: (_) => const SafeArea(child: ListTile(leading: Icon(Icons.info_outline), title: Text('Conversation info')))), icon: const Icon(Icons.more_vert))
+            ]),
         body: Container(
             color: Theme.of(context).brightness == Brightness.dark
                 ? const Color(0xFF091126)
-                : AppTheme.canvas,
+                : AppTheme.chatCanvas,
             child: CustomPaint(
                 painter: _ChatTexturePainter(
                     dark: Theme.of(context).brightness == Brightness.dark),
@@ -601,6 +606,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   key:
                                                       const Key('messageInput'),
                                                   controller: _controller,
+                                                  onChanged: (_) => setState(() {}),
                                                   minLines: 1,
                                                   maxLines: 5,
                                                   decoration: InputDecoration(
@@ -611,27 +617,18 @@ class _ChatScreenState extends State<ChatScreen> {
                                                           onPressed:
                                                               _showEmojiPicker,
                                                           icon: const Icon(Icons
-                                                              .sentiment_satisfied_alt_rounded))))),
+                                                              .sentiment_satisfied_alt_rounded)),
+                                                      suffixIcon: Row(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            IconButton(tooltip: 'Attach', onPressed: _showImageSource, icon: const Icon(Icons.attach_file_rounded)),
+                                                            IconButton(tooltip: 'Camera', onPressed: _showImageSource, icon: const Icon(Icons.camera_alt_outlined))
+                                                          ])))),
                                           const SizedBox(width: 8),
-                                          IconButton.filledTonal(
-                                              tooltip: 'Camera or gallery',
-                                              onPressed: _showImageSource,
-                                              icon: const Icon(Icons
-                                                  .add_photo_alternate_rounded)),
-                                          const SizedBox(width: 4),
-                                          IconButton.filledTonal(
-                                              key: const Key(
-                                                  'recordVoiceButton'),
-                                              onPressed: _toggleRecording,
-                                              icon: const Icon(
-                                                  Icons.mic_rounded)),
-                                          const SizedBox(width: 4),
                                           IconButton.filled(
-                                              key: const Key('sendButton'),
-                                              onPressed:
-                                                  _connected ? _sendText : null,
-                                              icon: const Icon(
-                                                  Icons.arrow_upward_rounded))
+                                              key: Key(_controller.text.trim().isEmpty ? 'recordVoiceButton' : 'sendButton'),
+                                              onPressed: _controller.text.trim().isEmpty ? _toggleRecording : (_connected ? _sendText : null),
+                                              icon: Icon(_controller.text.trim().isEmpty ? Icons.mic_rounded : Icons.send_rounded))
                                         ]))),
                 ]))),
       );
@@ -644,15 +641,15 @@ class _ChatTexturePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final blue = Paint()
-      ..color = const Color(0xFF0C4CF5).withValues(alpha: dark ? .10 : .055)
+      ..color = AppTheme.amber.withValues(alpha: dark ? .10 : .07)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     final orange = Paint()
-      ..color = const Color(0xFFFF5A1F).withValues(alpha: dark ? .11 : .06)
+      ..color = AppTheme.primary.withValues(alpha: dark ? .11 : .16)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     final dot = Paint()
-      ..color = const Color(0xFF0C4CF5).withValues(alpha: dark ? .09 : .045);
+      ..color = AppTheme.amber.withValues(alpha: dark ? .09 : .07);
 
     const cell = 118.0;
     for (double y = 34; y < size.height; y += cell) {
@@ -781,8 +778,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
 
   @override
   Widget build(BuildContext context) {
-    final foreground =
-        widget.mine ? Colors.white : Theme.of(context).colorScheme.onSurface;
+    final foreground = Theme.of(context).colorScheme.onSurface;
     return Align(
         alignment: widget.mine ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
@@ -790,14 +786,12 @@ class _MessageBubbleState extends State<_MessageBubble> {
             margin: const EdgeInsets.symmetric(vertical: 4),
             padding: const EdgeInsets.fromLTRB(14, 10, 11, 7),
             decoration: BoxDecoration(
-                color: widget.mine
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.surface,
+                color: widget.mine ? AppTheme.sentBubble : Colors.white,
                 borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(20),
-                    topRight: const Radius.circular(20),
-                    bottomLeft: Radius.circular(widget.mine ? 20 : 6),
-                    bottomRight: Radius.circular(widget.mine ? 6 : 20)),
+                    topLeft: Radius.circular(widget.mine ? 8 : 0),
+                    topRight: Radius.circular(widget.mine ? 0 : 8),
+                    bottomLeft: const Radius.circular(8),
+                    bottomRight: const Radius.circular(8)),
                 boxShadow: [
                   BoxShadow(
                       color: Colors.black.withValues(alpha: .045),
@@ -893,7 +887,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
                           : Icons.done_all,
                       size: 14,
                       color: widget.message.status == MessageStatus.read
-                          ? const Color(0xFF8FF5E8)
+                          ? const Color(0xFF53BDEB)
                           : foreground.withValues(alpha: .75))
                 ]
               ])

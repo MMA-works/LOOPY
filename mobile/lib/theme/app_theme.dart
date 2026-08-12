@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppTheme {
-  static const primary = Color(0xFF0C4CF5);
-  static const accent = Color(0xFFFF5A1F);
-  static const ink = Color(0xFF111A3A);
-  static const muted = Color(0xFF6E7385);
-  static const canvas = Color(0xFFFAEBD7);
+  static const primary = Color(0xFFFFD54F);
+  static const accent = Color(0xFFFFB300);
+  static const amber = Color(0xFFD97706);
+  static const hover = Color(0xFFFFF9C4);
+  static const ink = Color(0xFF111B21);
+  static const muted = Color(0xFF667781);
+  static const canvas = Color(0xFFFFFFFF);
+  static const chatCanvas = Color(0xFFEFE7DD);
+  static const sentBubble = Color(0xFFFFF3B0);
 
   static ThemeData get light => _theme(Brightness.light);
   static ThemeData get dark => _theme(Brightness.dark);
@@ -23,7 +27,7 @@ abstract final class AppTheme {
       useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
-      scaffoldBackgroundColor: dark ? const Color(0xFF091126) : canvas,
+      scaffoldBackgroundColor: dark ? const Color(0xFF111B21) : canvas,
       fontFamily: 'sans-serif',
       textTheme: ThemeData(brightness: brightness).textTheme.apply(
             bodyColor: dark ? const Color(0xFFF3F0F8) : ink,
@@ -33,7 +37,7 @@ abstract final class AppTheme {
         centerTitle: false,
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: dark ? const Color(0xFF17151F) : Colors.white,
+        backgroundColor: dark ? const Color(0xFF202C33) : primary,
         foregroundColor: dark ? Colors.white : ink,
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -66,11 +70,11 @@ abstract final class AppTheme {
         height: 72,
         elevation: 0,
         backgroundColor: dark ? const Color(0xFF17151F) : Colors.white,
-        indicatorColor: accent.withValues(alpha: dark ? .32 : .14),
+        indicatorColor: dark ? const Color(0xFF5B4C18) : const Color(0xFFFEF08A),
         iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
             color: states.contains(WidgetState.selected)
-                ? accent
-                : (dark ? Colors.white70 : ink))),
+                ? ink
+                : (dark ? Colors.white70 : muted))),
         labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
               fontSize: 12,
               fontWeight: states.contains(WidgetState.selected)
