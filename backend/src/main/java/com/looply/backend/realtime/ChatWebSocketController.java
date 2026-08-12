@@ -65,6 +65,17 @@ public class ChatWebSocketController {
         });
     }
 
+    @MessageMapping("/chat.typing")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public void typingSignal(Principal principal, @Valid TypingSignalRequest request) {
+        conversationRepository.findById(java.util.UUID.fromString(request.conversationId())).ifPresent(conversation -> {
+            conversation.getParticipants().stream()
+                .filter(p -> !p.getUser().getUsername().equals(principal.getName()))
+                .forEach(p -> messagingTemplate.convertAndSendToUser(
+                    p.getUser().getUsername(), "/queue/typing-signals", request));
+        });
+    }
+
     @MessageExceptionHandler
     @SendToUser("/queue/errors")
     public RealtimeError error(Exception exception) {
