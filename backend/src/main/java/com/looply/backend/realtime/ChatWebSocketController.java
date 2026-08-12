@@ -21,12 +21,14 @@ public class ChatWebSocketController {
     private final MessageService messageService;
     private final SimpMessagingTemplate messagingTemplate;
     private final MessageStatusService statusService;
+    private final com.looply.backend.conversation.ConversationRepository conversationRepository;
 
     public ChatWebSocketController(MessageService messageService, SimpMessagingTemplate messagingTemplate,
-            MessageStatusService statusService) {
+            MessageStatusService statusService, com.looply.backend.conversation.ConversationRepository conversationRepository) {
         this.messageService = messageService;
         this.messagingTemplate = messagingTemplate;
         this.statusService = statusService;
+        this.conversationRepository = conversationRepository;
     }
 
     @MessageMapping("/chat.delivered")
@@ -50,6 +52,16 @@ public class ChatWebSocketController {
         MessageResponse response = persisted.message();
         persisted.recipients().forEach(username ->
                 messagingTemplate.convertAndSendToUser(username, "/queue/messages", response));
+    }
+
+    @MessageMapping("/call.signal")
+    public void callSignal(Principal principal, @Valid CallSignalRequest request) {
+        conversationRepository.findById(java.util.UUID.fromString(request.conversationId())).ifPresent(conversation -> {
+            conversation.getParticipants().stream()
+                .filter(p -> !p.getUser().getUsername().equals(principal.getName()))
+                .forEach(p -> messagingTemplate.convertAndSendToUser(
+                    p.getUser().getUsername(), "/queue/call-signals", request));
+        });
     }
 
     @MessageExceptionHandler
