@@ -55,6 +55,7 @@ public class ChatWebSocketController {
     }
 
     @MessageMapping("/call.signal")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public void callSignal(Principal principal, @Valid CallSignalRequest request) {
         conversationRepository.findById(java.util.UUID.fromString(request.conversationId())).ifPresent(conversation -> {
             conversation.getParticipants().stream()
